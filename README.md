@@ -21,6 +21,8 @@ Open the project in Android Studio and run it, or build from the command line:
 
 The APK for each release is attached on the Releases page.
 
+Release builds are signed with the keystore in `signing/`. It is a convenience key so sideloaded builds install and update cleanly; it is not a store key and protects nothing secret.
+
 ## License
 
 MIT. See [LICENSE](LICENSE).
