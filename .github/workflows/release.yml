@@ -1,8 +1,11 @@
 name: Release
 
 on:
-  push:
-    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release, for example 1.0"
+        required: true
 
 permissions:
   contents: write
@@ -21,9 +24,11 @@ jobs:
       - name: Create release with APK
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ inputs.version }}
         run: |
-          apk="Elendheim-Vocal-Range-${GITHUB_REF_NAME}.apk"
+          apk="Elendheim-Vocal-Range-v${VERSION}.apk"
           cp app/build/outputs/apk/release/app-release.apk "$apk"
-          gh release create "$GITHUB_REF_NAME" "$apk" \
-            --title "Elendheim Vocal Range $GITHUB_REF_NAME" \
+          gh release create "v${VERSION}" "$apk" \
+            --target "$GITHUB_SHA" \
+            --title "Elendheim Vocal Range v${VERSION}" \
             --notes "Elendheim Vocal Range is an Android app that finds your singing range. It listens through the microphone, shows the note you are singing live, and captures your range from your lowest note to your highest. Sessions are saved so you can track your range over time. Download the APK below to install it."
