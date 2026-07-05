@@ -1,8 +1,8 @@
 name: Release
 
 on:
-  release:
-    types: [published]
+  push:
+    tags: ["v*"]
 
 permissions:
   contents: write
@@ -12,18 +12,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.release.tag_name }}
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
       - uses: gradle/actions/setup-gradle@v4
       - run: ./gradlew assembleRelease --stacktrace
-      - name: Attach APK to the release
+      - name: Create release with APK
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          apk="Elendheim-Vocal-Range-${{ github.event.release.tag_name }}.apk"
+          apk="Elendheim-Vocal-Range-${GITHUB_REF_NAME}.apk"
           cp app/build/outputs/apk/release/app-release.apk "$apk"
-          gh release upload "${{ github.event.release.tag_name }}" "$apk" --clobber
+          gh release create "$GITHUB_REF_NAME" "$apk" \
+            --title "Elendheim Vocal Range $GITHUB_REF_NAME" \
+            --notes "Elendheim Vocal Range is an Android app that finds your singing range. It listens through the microphone, shows the note you are singing live, and captures your range from your lowest note to your highest. Sessions are saved so you can track your range over time. Download the APK below to install it."
