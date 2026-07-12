@@ -31,7 +31,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
@@ -49,7 +48,7 @@ import java.util.Locale
 import kotlin.math.roundToInt
 
 @Composable
-fun SingScreen(engine: PitchEngine, modifier: Modifier = Modifier) {
+fun SingScreen(engine: PitchEngine, noteOnly: Boolean, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val tracker = remember { RangeTracker() }
@@ -165,22 +164,18 @@ fun SingScreen(engine: PitchEngine, modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Spacer(Modifier.height(24.dp))
-            Text(
-                text = noteText,
-                fontSize = 104.sp,
-                fontWeight = FontWeight.Bold,
-                color = if (voicedNow) MaterialTheme.colorScheme.primary
-                else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.3f),
-            )
-            Text(
-                text = if (recording) detailText else "tap record and sing",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            Spacer(Modifier.height(16.dp))
+            NoteCircle(
+                note = noteText,
+                detail = if (recording) detailText else "tap record and sing",
+                active = voicedNow,
             )
         }
 
-        RangeCard(absLow, absHigh, comfLow, comfHigh)
+        // Note only mode hides the range card -> just you and the circle
+        if (!noteOnly) {
+            RangeCard(absLow, absHigh, comfLow, comfHigh)
+        }
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Button(
@@ -196,19 +191,21 @@ fun SingScreen(engine: PitchEngine, modifier: Modifier = Modifier) {
             ) {
                 Text(if (recording) "Stop" else "Record", fontSize = 18.sp)
             }
-            Spacer(Modifier.height(16.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedButton(
-                    onClick = { saveSession() },
-                    enabled = absHigh >= absLow && absLow >= 0 && !saved,
-                ) {
-                    Text(if (saved) "Saved" else "Save session")
-                }
-                OutlinedButton(
-                    onClick = { resetSession() },
-                    enabled = absHigh >= absLow && absLow >= 0,
-                ) {
-                    Text("Reset")
+            if (!noteOnly) {
+                Spacer(Modifier.height(16.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    OutlinedButton(
+                        onClick = { saveSession() },
+                        enabled = absHigh >= absLow && absLow >= 0 && !saved,
+                    ) {
+                        Text(if (saved) "Saved" else "Save session")
+                    }
+                    OutlinedButton(
+                        onClick = { resetSession() },
+                        enabled = absHigh >= absLow && absLow >= 0,
+                    ) {
+                        Text("Reset")
+                    }
                 }
             }
             Spacer(Modifier.height(8.dp))
