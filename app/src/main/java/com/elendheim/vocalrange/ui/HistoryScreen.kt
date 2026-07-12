@@ -1,10 +1,7 @@
 package com.elendheim.vocalrange.ui
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,7 +12,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -23,7 +19,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -42,29 +37,12 @@ fun HistoryScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var sessions by remember { mutableStateOf<List<Session>>(emptyList()) }
-    var folderName by remember { mutableStateOf<String?>(null) }
 
-    fun reload() {
+    // Reload every time this tab opens so new saves show up right away
+    LaunchedEffect(Unit) {
         scope.launch(Dispatchers.IO) {
             val loaded = SessionStore.load(context).sortedByDescending { it.timestampMillis }
-            val name = SessionStore.folderName(context)
-            withContext(Dispatchers.Main) {
-                sessions = loaded
-                folderName = name
-            }
-        }
-    }
-
-    LaunchedEffect(Unit) { reload() }
-
-    val folderLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.OpenDocumentTree()
-    ) { uri ->
-        if (uri != null) {
-            scope.launch(Dispatchers.IO) {
-                SessionStore.setFolderUri(context, uri)
-                withContext(Dispatchers.Main) { reload() }
-            }
+            withContext(Dispatchers.Main) { sessions = loaded }
         }
     }
 
@@ -75,21 +53,7 @@ fun HistoryScreen(modifier: Modifier = Modifier) {
     ) {
         Spacer(Modifier.height(24.dp))
         Text("History", style = MaterialTheme.typography.headlineMedium)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                "Saved to ${folderName ?: "app storage"}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            TextButton(onClick = { folderLauncher.launch(null) }) {
-                Text("Choose folder")
-            }
-        }
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(12.dp))
 
         if (sessions.isEmpty()) {
             Text(

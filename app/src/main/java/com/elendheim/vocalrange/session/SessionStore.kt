@@ -67,6 +67,48 @@ object SessionStore {
         }
     }
 
+    // Write every saved session to a file the user picked -> a simple backup.
+    fun exportTo(context: Context, uri: Uri): Boolean {
+        val json = serialize(load(context))
+        return try {
+            context.contentResolver.openOutputStream(uri, "wt")?.use {
+                it.write(json.toByteArray(Charsets.UTF_8))
+                true
+            } ?: false
+        } catch (e: IOException) {
+            false
+        } catch (e: SecurityException) {
+            false
+        }
+    }
+
+    // Read sessions from a picked file and merge in the ones we do not have yet.
+    // Returns how many were new, or -1 when the file could not be read.
+    fun importFrom(context: Context, uri: Uri): Int {
+        val text = try {
+            context.contentResolver.openInputStream(uri)?.use {
+                it.readBytes().toString(Charsets.UTF_8)
+            }
+        } catch (e: IOException) {
+            null
+        } catch (e: SecurityException) {
+            null
+        } ?: return -1
+        val incoming = parse(text)
+        val existing = load(context)
+        // Sessions are matched by their timestamp -> importing twice adds nothing
+        val known = existing.map { it.timestampMillis }.toHashSet()
+        val fresh = incoming.filter { it.timestampMillis !in known }
+        if (fresh.isNotEmpty()) {
+            val merged = (existing + fresh).sortedBy { it.timestampMillis }
+            val json = serialize(merged)
+            if (folderUri(context) == null || !writeExternal(context, json)) {
+                internalFile(context).writeText(json)
+            }
+        }
+        return fresh.size
+    }
+
     private fun internalFile(context: Context): File = File(context.filesDir, FILE_NAME)
 
     private fun externalFile(context: Context, create: Boolean): DocumentFile? {

@@ -31,4 +31,4 @@ jobs:
           gh release create "v${VERSION}" "$apk" \
             --target "$GITHUB_SHA" \
             --title "Elendheim Vocal Range v${VERSION}" \
-            --notes "Elendheim Vocal Range is an Android app that finds your singing range. It listens through the microphone, shows the note you are singing live, and captures your range from your lowest note to your highest. Sessions are saved so you can track your range over time. Download the APK below to install it."
+            --notes "Elendheim Vocal Range is an Android app that finds your singing range. It shows the note you are singing live in a big circle, captures your range from your lowest note to your highest, and has challenges for hitting and holding notes. Sessions are saved so you can track your range over time, and you can export and import them from settings. Download the APK below to install it."

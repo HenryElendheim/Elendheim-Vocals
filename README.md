@@ -6,10 +6,13 @@ Tap record and sing or hum. The app listens through the microphone, shows the no
 
 ## What it does
 
-- Detects the note you are singing in real time
+- Shows the note you are singing in real time, in a big circle
 - Captures your vocal range, from your lowest note to your highest
 - Tracks your comfortable range separately from your absolute range
+- Has challenges: hold notes, climb scales, hit the octave
 - Saves every session so you can see your progress
+- Imports and exports your session history straight to your files
+- Note only mode when you just want to see what you are hitting
 
 ## Building
 
