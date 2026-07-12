@@ -161,7 +161,7 @@ fun SettingsScreen(
 
         Spacer(Modifier.weight(1f))
         Text(
-            "Elendheim Vocal Range 1.1",
+            "Elendheim Vocal Range 2.0",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
